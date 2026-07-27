@@ -3,7 +3,8 @@ requests
 groq
 PyPDF2
 python-docx
-Pillow
+Pillow==10.4.0
 pandas
 plotly
 psycopg2-binary
+numpy==1.26.4
