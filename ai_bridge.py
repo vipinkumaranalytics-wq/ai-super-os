@@ -15,7 +15,7 @@ _API_URL  = "https://api.groq.com/openai/v1/chat/completions"
 def _key():
     k = os.environ.get("GROQ_API_KEY","")
     if not k:
-        try: k = open("/content/ai_super_os_app/.groq_key").read().strip()
+        try: k = open(".groq_key").read().strip()
         except: pass
     return k
 

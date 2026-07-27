@@ -7,7 +7,7 @@ import shutil
 import datetime
 from pathlib import Path
 import streamlit as st
-sys.path.insert(0, "/content/ai_super_os_app")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent))
 
 from drive_utils import backup_database, list_backups, get_drive_usage
 from app_config  import (COLOR_PRIMARY, COLOR_CARD, COLOR_SUCCESS,

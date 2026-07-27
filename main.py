@@ -21,7 +21,7 @@ _DG.markdown = _patched_dg_md
 
 import streamlit as st
 
-sys.path.insert(0, "/content/ai_super_os_app")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 
 # ── Page config (MUST be first Streamlit call) ────────────
 st.set_page_config(

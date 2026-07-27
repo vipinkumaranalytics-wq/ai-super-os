@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sys
 import streamlit as st
-sys.path.insert(0, "/content/ai_super_os_app")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent))
 
 from db_bridge  import db
 from ai_bridge  import generate_plan, ask
