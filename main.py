@@ -3,23 +3,8 @@ from __future__ import annotations
 
 import sys
 import datetime
-import streamlit as _st
-from streamlit.delta_generator import DeltaGenerator as _DG
-
-# ── DeltaGenerator monkey-patch (allow HTML in col.markdown) ─────────────────
-_orig_st_md = _st.markdown
-def _patched_st_md(*a, **kw):
-    kw["unsafe_allow_html"] = True
-    return _orig_st_md(*a, **kw)
-_st.markdown = _patched_st_md
-
-_orig_dg_md = _DG.markdown
-def _patched_dg_md(self, *a, **kw):
-    kw["unsafe_allow_html"] = True
-    return _orig_dg_md(self, *a, **kw)
-_DG.markdown = _patched_dg_md
-
 import streamlit as st
+
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 
