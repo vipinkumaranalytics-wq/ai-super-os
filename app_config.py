@@ -3,7 +3,7 @@ from pathlib import Path
 
 DRIVE_ROOT   = "/content/drive/MyDrive/ai_super_os"
 PROJECT_ROOT = DRIVE_ROOT
-DB_PATH      = f"{DRIVE_ROOT}/ai_super_os.db"
+DB_PATH = str(Path(__file__).resolve().parent / "data" / "ai_super_os.db")
 APP_DIR      = "/content/ai_super_os_app"
 
 COLOR_BG        = "#0a0a14"
