@@ -276,7 +276,7 @@ def render():
                 full_response = ""
                 with st.spinner(""):
                     for chunk in chat_stream(
-                        [m for m in api_messages if m["role"] != "system"],
+                        api_messages,
                         model=st.session_state.get("chat_model")
                     ):
                         full_response += chunk
