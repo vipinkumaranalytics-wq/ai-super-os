@@ -1,11 +1,8 @@
 from __future__ import annotations
 # AI Super OS v2.0 — main.py
-
 import sys
 import datetime
 import streamlit as st
-
-
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 
 # ── Page config (MUST be first Streamlit call) ────────────
@@ -34,7 +31,7 @@ from app_config import (
 from db_bridge import db
 from ai_bridge import get_status as ai_status
 
-# ── Dark Theme CSS ────────────────────────────────────────
+# ── Dark Theme CSS + Mobile ───────────────────────────────
 st.markdown(f"""
 <style>
 /* ═══════════════════════════════════════════════
@@ -46,12 +43,10 @@ html, body, [data-testid="stAppViewContainer"],
     color: #e2e8f0 !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }}
-
 [data-testid="stHeader"] {{
     background: {COLOR_BG} !important;
     border-bottom: 1px solid #1e293b;
 }}
-
 /* ═══════════════════════════════════════════════
    SIDEBAR
 ═══════════════════════════════════════════════ */
@@ -60,11 +55,9 @@ html, body, [data-testid="stAppViewContainer"],
     border-right: 1px solid #1e293b !important;
     padding-top: 0 !important;
 }}
-
 [data-testid="stSidebar"] * {{
     color: #e2e8f0 !important;
 }}
-
 /* ═══════════════════════════════════════════════
    BUTTONS
 ═══════════════════════════════════════════════ */
@@ -92,7 +85,6 @@ html, body, [data-testid="stAppViewContainer"],
     background: linear-gradient(135deg, {COLOR_PRIMARY}44, {COLOR_SECONDARY}44) !important;
     box-shadow: 0 0 20px {COLOR_PRIMARY}33 !important;
 }}
-
 /* ═══════════════════════════════════════════════
    INPUTS
 ═══════════════════════════════════════════════ */
@@ -116,7 +108,6 @@ html, body, [data-testid="stAppViewContainer"],
     border-radius: 8px !important;
     color: #e2e8f0 !important;
 }}
-
 /* ═══════════════════════════════════════════════
    METRICS
 ═══════════════════════════════════════════════ */
@@ -134,7 +125,6 @@ html, body, [data-testid="stAppViewContainer"],
     color: {COLOR_PRIMARY} !important;
     font-weight: 800 !important;
 }}
-
 /* ═══════════════════════════════════════════════
    TABS
 ═══════════════════════════════════════════════ */
@@ -155,7 +145,6 @@ html, body, [data-testid="stAppViewContainer"],
     color: {COLOR_PRIMARY} !important;
     border-bottom: 2px solid {COLOR_PRIMARY} !important;
 }}
-
 /* ═══════════════════════════════════════════════
    EXPANDERS
 ═══════════════════════════════════════════════ */
@@ -170,17 +159,6 @@ html, body, [data-testid="stAppViewContainer"],
     border: 1px solid #2d2d4e !important;
     border-top: none !important;
 }}
-
-/* ═══════════════════════════════════════════════
-   SLIDERS
-═══════════════════════════════════════════════ */
-.stSlider [data-baseweb="slider"] {{
-    padding: 0 !important;
-}}
-.stSlider [data-testid="stThumbValue"] {{
-    color: {COLOR_PRIMARY} !important;
-}}
-
 /* ═══════════════════════════════════════════════
    ALERTS
 ═══════════════════════════════════════════════ */
@@ -205,7 +183,6 @@ html, body, [data-testid="stAppViewContainer"],
     border: 1px solid {COLOR_PRIMARY}44 !important;
     border-radius: 8px !important;
 }}
-
 /* ═══════════════════════════════════════════════
    DATAFRAMES / TABLES
 ═══════════════════════════════════════════════ */
@@ -213,7 +190,6 @@ html, body, [data-testid="stAppViewContainer"],
     background: {COLOR_CARD} !important;
     border-radius: 8px !important;
 }}
-
 /* ═══════════════════════════════════════════════
    FILE UPLOADER
 ═══════════════════════════════════════════════ */
@@ -225,7 +201,6 @@ html, body, [data-testid="stAppViewContainer"],
 [data-testid="stFileUploader"]:hover {{
     border-color: {COLOR_PRIMARY} !important;
 }}
-
 /* ═══════════════════════════════════════════════
    DIVIDER
 ═══════════════════════════════════════════════ */
@@ -233,7 +208,6 @@ hr {{
     border-color: #1e293b !important;
     margin: 16px 0 !important;
 }}
-
 /* ═══════════════════════════════════════════════
    SCROLLBAR
 ═══════════════════════════════════════════════ */
@@ -244,7 +218,6 @@ hr {{
     border-radius: 3px;
 }}
 ::-webkit-scrollbar-thumb:hover {{ background: {COLOR_PRIMARY}; }}
-
 /* ═══════════════════════════════════════════════
    SIDEBAR NAV BUTTONS
 ═══════════════════════════════════════════════ */
@@ -262,7 +235,6 @@ hr {{
     color: {COLOR_PRIMARY} !important;
     font-weight: 700 !important;
 }}
-
 /* ═══════════════════════════════════════════════
    MAIN CONTENT PADDING
 ═══════════════════════════════════════════════ */
@@ -270,16 +242,33 @@ hr {{
     padding: 1.5rem 2rem 3rem 2rem !important;
     max-width: 1400px !important;
 }}
-
 /* ═══════════════════════════════════════════════
    RADIO BUTTONS
 ═══════════════════════════════════════════════ */
 [data-testid="stRadio"] label {{
     color: #e2e8f0 !important;
 }}
+/* ═══════════════════════════════════════════════
+   MOBILE FRIENDLY
+═══════════════════════════════════════════════ */
+@media (max-width: 768px) {{
+    .main .block-container {{
+        padding: 1rem 0.5rem 2rem 0.5rem !important;
+    }}
+    .stButton > button {{
+        font-size: 15px !important;
+        min-height: 44px !important;
+    }}
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {{
+        font-size: 16px !important;
+    }}
+    div[data-testid="column"] {{
+        min-width: 45% !important;
+    }}
+}}
 </style>
 """, unsafe_allow_html=True)
-
 
 # ── Session state defaults ────────────────────────────────
 def _init_state():
@@ -303,13 +292,13 @@ def _init_state():
         "quiz_submitted":    False,
         "current_roadmap":   [],
         "skill_mode":        "list",
+        "theme_mode":        "🌙 Dark",
+        "global_search":     "",
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
-
 _init_state()
-
 
 # ── Navigation pages config ───────────────────────────────
 NAV_PAGES = [
@@ -324,12 +313,11 @@ NAV_PAGES = [
     ("ideas",     "💡", "Ideas & Projects"),
     ("aitools",   "🛠️", "AI Tools"),
     ("analytics", "📊", "Analytics"),
-    # ("drive", "☁️", "Google Drive"),  # hidden
 ]
-
 
 # ── Sidebar ───────────────────────────────────────────────
 with st.sidebar:
+
     # Logo
     st.markdown(f"""
     <div style='padding: 20px 8px 16px 8px; border-bottom: 1px solid #1e293b; margin-bottom: 12px;'>
@@ -345,8 +333,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     # AI status pill
-    ai_info = ai_status()
-    ai_ready = ai_info.get("ready", False)
+    ai_info     = ai_status()
+    ai_ready    = ai_info.get("ready", False)
     ai_provider = ai_info.get("provider", "unknown")
     status_color = COLOR_SUCCESS if ai_ready else COLOR_DANGER
     status_text  = f"🟢 {ai_provider}" if ai_ready else "🔴 No AI"
@@ -357,7 +345,54 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # Navigation
+    # ── Search Bar ───────────────────────────────────────
+    search_q = st.text_input(
+        "🔍 Search",
+        key="global_search",
+        placeholder="notes, tasks dhundho...",
+        label_visibility="collapsed"
+    )
+    if search_q and len(search_q) > 1:
+        try:
+            found_notes = db.get_all_notes(search=search_q)
+            found_tasks = [t for t in db.get_all_tasks()
+                           if search_q.lower() in t["title"].lower()]
+            if found_notes or found_tasks:
+                if found_notes:
+                    st.markdown(
+                        f"<p style='font-size:11px;color:{COLOR_PRIMARY};margin:4px 0 2px 0;'>"
+                        f"📝 Notes ({len(found_notes)})</p>",
+                        unsafe_allow_html=True
+                    )
+                    for n in found_notes[:3]:
+                        st.markdown(
+                            f"<p style='font-size:11px;color:#94a3b8;margin:1px 0;padding-left:8px;'>"
+                            f"• {n['title'][:26]}</p>",
+                            unsafe_allow_html=True
+                        )
+                if found_tasks:
+                    st.markdown(
+                        f"<p style='font-size:11px;color:{COLOR_SUCCESS};margin:4px 0 2px 0;'>"
+                        f"✅ Tasks ({len(found_tasks)})</p>",
+                        unsafe_allow_html=True
+                    )
+                    for t in found_tasks[:3]:
+                        st.markdown(
+                            f"<p style='font-size:11px;color:#94a3b8;margin:1px 0;padding-left:8px;'>"
+                            f"• {t['title'][:26]}</p>",
+                            unsafe_allow_html=True
+                        )
+            else:
+                st.caption("Kuch nahi mila 🔍")
+        except Exception:
+            pass
+
+    st.markdown(
+        "<hr style='border-color:#1e293b;margin:8px 0;'>",
+        unsafe_allow_html=True
+    )
+
+    # ── Navigation ───────────────────────────────────────
     for page_id, icon, label in NAV_PAGES:
         is_active = st.session_state.current_page == page_id
         btn_style = "nav-btn-active" if is_active else "nav-btn"
@@ -369,9 +404,25 @@ with st.sidebar:
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # Bottom stats
+    # ── Theme Toggle ─────────────────────────────────────
+    st.markdown(
+        "<hr style='border-color:#1e293b;margin:8px 0;'>",
+        unsafe_allow_html=True
+    )
+    theme = st.radio(
+        "Theme",
+        ["🌙 Dark", "☀️ Light"],
+        horizontal=True,
+        key="theme_mode",
+        label_visibility="collapsed"
+    )
+
+    # ── Bottom Stats ─────────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("<hr style='border-color:#1e293b;margin:8px 0;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<hr style='border-color:#1e293b;margin:8px 0;'>",
+        unsafe_allow_html=True
+    )
     try:
         stats = db.get_dashboard_stats()
         st.markdown(
@@ -388,10 +439,44 @@ with st.sidebar:
     except Exception:
         pass
 
+# ── Light Mode CSS (applied after sidebar renders) ────────
+if st.session_state.get("theme_mode") == "☀️ Light":
+    st.markdown("""<style>
+    html, body, [data-testid="stAppViewContainer"],
+    [data-testid="stApp"] {
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+    }
+    [data-testid="stSidebar"] {
+        background: #e2e8f0 !important;
+        border-right: 1px solid #cbd5e1 !important;
+    }
+    [data-testid="stSidebar"] * { color: #1e293b !important; }
+    [data-testid="stHeader"] { background: #f8fafc !important; }
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        border-color: #cbd5e1 !important;
+    }
+    .stSelectbox > div > div {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        border-color: #cbd5e1 !important;
+    }
+    .stButton > button {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        border-color: #cbd5e1 !important;
+    }
+    [data-testid="metric-container"] {
+        background: #ffffff !important;
+        border-color: #e2e8f0 !important;
+    }
+    </style>""", unsafe_allow_html=True)
 
 # ── Page Router ───────────────────────────────────────────
 page = st.session_state.current_page
-
 try:
     if page == "home":
         from pages.page_home      import render; render()
@@ -419,21 +504,11 @@ try:
         from pages.page_drive     import render; render()
     else:
         st.error(f"Page '{page}' not found.")
-
 except ImportError as e:
-    st.error(f"❌ Could not load page: {e}")
-    st.markdown(
-        "<div style='background:#1e293b;border-radius:8px;padding:16px;'>"
-        "<strong>Troubleshooting:</strong><br>"
-        "1. Make sure all cells (9A → 9F) have been run in this session.<br>"
-        "2. Colab resets /content/ on restart — re-run all cells.<br>"
-        "3. Check the error message above for the missing module.</div>",
-        unsafe_allow_html=True
-    )
+    st.error(f"Page load nahi hua: {e}")
     st.code(str(e))
-
 except Exception as e:
     import traceback
-    st.error(f"❌ Page error: {e}")
+    st.error(f"Page error: {e}")
     with st.expander("🔍 Full traceback"):
         st.code(traceback.format_exc())
