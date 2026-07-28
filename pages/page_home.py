@@ -19,15 +19,17 @@ from app_config import (
 
 
 def _metric_card(col, emoji, label, value, color, sub=""):
+    sub_html = f"<p style='font-size:10px;color:#64748b;margin:2px 0 0 0;'>{sub}</p>" if sub else ""
     col.markdown(
-        f"""<div style='background:{COLOR_CARD};border:1px solid {color}33;border-radius:12px;
-        padding:14px 16px;text-align:center;'>
-        <div style='font-size:26px;'>{emoji}</div>
-        <div style='font-size:22px;font-weight:800;color:{color};'>{value}</div>
-        <div style='font-size:12px;color:#94a3b8;'>{label}</div>
-        {'<div style="font-size:10px;color:#64748b;">'+sub+'</div>' if sub else ''}
-        </div>""",
+        f"<div style='background:{COLOR_CARD};border:1px solid {color}33;"
+        f"border-radius:12px;padding:14px 16px;text-align:center;'>"
+        f"<p style='font-size:26px;margin:0;'>{emoji}</p>"
+        f"<p style='font-size:22px;font-weight:800;color:{color};margin:4px 0;'>{value}</p>"
+        f"<p style='font-size:12px;color:#94a3b8;margin:0;'>{label}</p>"
+        f"{sub_html}"
+        f"</div>",
         unsafe_allow_html=True
+    )
     )
 
 
