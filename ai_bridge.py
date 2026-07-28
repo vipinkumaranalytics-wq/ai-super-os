@@ -97,3 +97,75 @@ def set_model(m):
 
 def get_status():
     return {"ready": bool(_key()), "provider": _provider, "model": _model}
+    def detect_action(message: str) -> dict:
+    """Detect if user wants to add task/note/expense via chat."""
+    prompt = (
+        "Analyze this message. If it's a request to create/add something, return JSON.\n"
+        f"Message: \"{message}\"\n\n"
+        "Return ONE of these JSON formats only:\n"
+        "{\"action\":\"add_task\",\"title\":\"...\",\"priority\":\"medium\",\"due_date\":\"YYYY-MM-DD or null\"}\n"
+        "{\"action\":\"add_note\",\"title\":\"...\",\"content\":\"...\"}\n"
+        "{\"action\":\"add_expense\",\"amount\":0,\"category\":\"Food\",\"description\":\"...\"}\n"
+        "{\"action\":\"add_income\",\"amount\":0,\"category\":\"Salary\",\"description\":\"...\"}\n"
+        "{\"action\":\"add_goal\",\"title\":\"...\",\"description\":\"...\"}\n"
+        "{\"action\":\"none\"}\n\n"
+        "Return ONLY valid JSON. No explanation."
+    )
+    raw = ask(prompt, "You detect user intent. Return only JSON.")
+    try:
+        s = raw.find("{"); e = raw.rfind("}") + 1
+        return json.loads(raw[s:e]) if s >= 0 else {"action": "none"}
+    except Exception:
+        return {"action": "none"}
+
+
+def get_daily_summary(stats: dict, tasks: list, goals: list) -> str:
+    """Generate a personalized morning summary."""
+    import datetime as _dt
+    task_lines = "\n".join(
+        "- " + t["title"] + " (" + t.get("priority","medium") + " priority)"
+        for t in tasks[:5]
+    )
+    goal_lines = "\n".join(
+        "- " + g["title"] + " (" + str(g.get("progress_pct",0)) + "% done)"
+        for g in goals[:3]
+    )
+    prompt = (
+        "Today is " + _dt.date.today().strftime("%A, %d %B %Y") + ".\n\n"
+        "User stats: " + str(stats.get("tasks_pending",0)) + " pending tasks, "
+        + str(stats.get("goals_active",0)) + " active goals, "
+        + "Rs." + str(stats.get("balance_month",0)) + " monthly balance.\n\n"
+        "Pending tasks:\n" + (task_lines or "None") + "\n\n"
+        "Active goals:\n" + (goal_lines or "None") + "\n\n"
+        "Write a motivating 3-4 line daily summary. Be specific and energizing. "
+        "Mention 1-2 specific tasks or goals. End with one powerful tip for today."
+    )
+    return ask(prompt, "You are a personal productivity coach. Be warm and motivating.")
+
+
+def get_finance_insights(transactions: list, summary: dict) -> str:
+    """AI analysis of spending patterns."""
+    if not transactions:
+        return "No transactions yet. Start tracking expenses to get AI insights!"
+    cats = {}
+    for t in transactions:
+        if t.get("type") == "expense":
+            cat = t.get("category", "Other")
+            cats[cat] = cats.get(cat, 0) + t.get("amount", 0)
+    cat_lines = "\n".join(
+        "- " + k + ": Rs." + str(round(v,0))
+        for k, v in sorted(cats.items(), key=lambda x: x[1], reverse=True)
+    )
+    prompt = (
+        "Monthly finance:\n"
+        "Income: Rs." + str(summary.get("income",0)) + "\n"
+        "Expenses: Rs." + str(summary.get("expense",0)) + "\n"
+        "Balance: Rs." + str(summary.get("balance",0)) + "\n\n"
+        "Spending by category:\n" + (cat_lines or "No expenses") + "\n\n"
+        "Give 3 specific insights:\n"
+        "1. Biggest spending area\n"
+        "2. Savings rate\n"
+        "3. One actionable tip\n"
+        "Be specific with numbers. Under 100 words."
+    )
+    return ask(prompt, "You are a personal finance advisor. Be specific and helpful.")
