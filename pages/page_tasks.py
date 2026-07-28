@@ -31,18 +31,30 @@ def _task_card(task: dict, show_actions: bool = True) -> None:
     due   = task.get("due_date") or ""
     today = datetime.date.today().isoformat()
     overdue = due and due < today and task.get("status") != "done"
-
     border_color = COLOR_DANGER if overdue else pc["color"]
+
+    if overdue:
+        due_str = "| 🔴 OVERDUE"
+    elif due:
+        due_str = "| Due: " + due
+    else:
+        due_str = ""
+
+    desc = task.get("description", "")
+    desc_html = (
+        "<div style='color:#94a3b8;font-size:12px;margin-top:4px;'>"
+        + desc[:100] + "</div>"
+    ) if desc else ""
+
     st.markdown(
-        f"""<div style='background:{COLOR_CARD};border-left:4px solid {border_color};
-        border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:6px;'>
-        <div style='display:flex;justify-content:space-between;align-items:center;'>
-        <span style='font-weight:700;font-size:14px;'>{sc['icon']} {task['title']}</span>
-        <span style='font-size:11px;color:#64748b;'>{pc['icon']} {pc['label']}
-        {'| 🔴 OVERDUE' if overdue else (f'| Due: {due}' if due else '')}</span>
-        </div>
-        {f'<div style="color:#94a3b8;font-size:12px;margin-top:4px;">{task.get("description","")[:100]}</div>' if task.get("description") else ''}
-        </div>""",
+        "<div style='background:" + COLOR_CARD + ";border-left:4px solid " + border_color + ";"
+        "border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:6px;'>"
+        "<div style='display:flex;justify-content:space-between;align-items:center;'>"
+        "<span style='font-weight:700;font-size:14px;'>" + sc["icon"] + " " + task["title"] + "</span>"
+        "<span style='font-size:11px;color:#64748b;'>" + pc["icon"] + " " + pc["label"] + " " + due_str + "</span>"
+        "</div>"
+        + desc_html
+        + "</div>",
         unsafe_allow_html=True
     )
 
