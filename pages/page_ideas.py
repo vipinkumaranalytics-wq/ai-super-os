@@ -1,11 +1,9 @@
 from __future__ import annotations
 """page_ideas.py — Ideas & Project Manager for AI Super OS v2.0"""
-
 import sys
 import json
 import streamlit as st
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent))
-
 from db_bridge  import db
 from ai_bridge  import generate_plan, ask
 from app_config import (COLOR_PRIMARY, COLOR_CARD, COLOR_SUCCESS,
@@ -36,7 +34,6 @@ def render():
     # TAB 1 — ALL IDEAS
     # ════════════════════════════════════════════════════
     with tab1:
-        # Filter bar
         fc1, fc2, fc3 = st.columns([2, 2, 1])
         cat_f    = fc1.selectbox("Category", ["All"] + IDEA_CATS, key="idea_cat_f",
                                  label_visibility="collapsed")
@@ -54,7 +51,6 @@ def render():
                      if search_f.lower() in i.get("title","").lower()
                      or search_f.lower() in i.get("description","").lower()]
 
-        # Summary counts
         counts = {s: sum(1 for i in db.get_all_ideas() if i.get("status") == s)
                   for s in IDEA_STATUSES}
         pill_html = "".join(
@@ -74,10 +70,9 @@ def render():
             )
         else:
             for idea in ideas:
-                s      = idea.get("status", "new")
-                sc     = STATUS_COLORS.get(s, COLOR_PRIMARY)
-                si     = STATUS_ICONS.get(s, "💡")
-
+                s  = idea.get("status", "new")
+                sc = STATUS_COLORS.get(s, COLOR_PRIMARY)
+                si = STATUS_ICONS.get(s, "💡")
                 with st.container():
                     st.markdown(
                         f"<div style='background:{COLOR_CARD};border-left:4px solid {sc};"
@@ -97,10 +92,7 @@ def render():
                         f"</div></div>",
                         unsafe_allow_html=True
                     )
-
                     ia, ib, ic, id_ = st.columns([2, 2, 1, 1])
-
-                    # Status change
                     new_status = ia.selectbox("Status", IDEA_STATUSES,
                                               index=IDEA_STATUSES.index(s) if s in IDEA_STATUSES else 0,
                                               key=f"idea_st_{idea['id']}", label_visibility="collapsed")
@@ -122,7 +114,6 @@ def render():
                         db.delete_idea(idea["id"])
                         st.rerun()
 
-                    # Edit form
                     if st.session_state.get(f"edit_idea_{idea['id']}"):
                         with st.form(key=f"edit_form_{idea['id']}"):
                             new_title = st.text_input("Title", value=idea["title"])
@@ -135,10 +126,10 @@ def render():
                                 st.session_state[f"edit_idea_{idea['id']}"] = False
                                 st.rerun()
 
-                    # Show AI plan
                     plan_text = idea.get("ai_plan","")
                     if plan_text and (st.session_state.get(f"show_plan_{idea['id']}") or idea.get("ai_plan")):
-                        with st.expander("🤖 AI Project Plan", expanded=st.session_state.get(f"show_plan_{idea['id']}", False)):
+                        with st.expander("🤖 AI Project Plan",
+                                         expanded=st.session_state.get(f"show_plan_{idea['id']}", False)):
                             try:
                                 plan_data = json.loads(plan_text) if isinstance(plan_text, str) else plan_text
                                 if isinstance(plan_data, list):
@@ -158,50 +149,77 @@ def render():
     # ════════════════════════════════════════════════════
     with tab2:
         st.markdown("### 💡 Capture a New Idea")
+
+        # Initialize prefill values (set by Quick Starters)
+        if "_idea_prefill_title" not in st.session_state:
+            st.session_state._idea_prefill_title = ""
+        if "_idea_prefill_cat" not in st.session_state:
+            st.session_state._idea_prefill_cat = "General"
+
         na, nb = st.columns([3, 1])
-        n_title = na.text_input("Idea title *", key="new_idea_title",
-                                placeholder="Your brilliant idea in one line…")
-        n_cat   = nb.selectbox("Category", IDEA_CATS, key="new_idea_cat",
-                               label_visibility="collapsed")
-        n_desc  = st.text_area("Description", key="new_idea_desc", height=100,
-                               placeholder="Describe your idea, problem it solves, target audience…")
-        n_tags  = st.text_input("Tags (comma-separated)", key="new_idea_tags",
-                                placeholder="e.g. mobile, SaaS, health")
+
+        # Use value= instead of key= to avoid session state conflict
+        n_title = na.text_input(
+            "Idea title *",
+            value=st.session_state._idea_prefill_title,
+            placeholder="Your brilliant idea in one line…"
+        )
+        cat_idx = IDEA_CATS.index(st.session_state._idea_prefill_cat) \
+                  if st.session_state._idea_prefill_cat in IDEA_CATS else 0
+        n_cat = nb.selectbox(
+            "Category", IDEA_CATS,
+            index=cat_idx,
+            label_visibility="collapsed"
+        )
+        n_desc = st.text_area(
+            "Description", key="new_idea_desc", height=100,
+            placeholder="Describe your idea, problem it solves, target audience…"
+        )
+        n_tags = st.text_input(
+            "Tags (comma-separated)", key="new_idea_tags",
+            placeholder="e.g. mobile, SaaS, health"
+        )
 
         col1, col2 = st.columns(2)
+
         if col1.button("💾 Save Idea", type="primary", use_container_width=True):
             if n_title.strip():
                 tags = [t.strip() for t in n_tags.split(",") if t.strip()]
                 db.create_idea(n_title, n_desc, n_cat, tags)
                 st.success(f"✅ Idea '{n_title}' saved!")
+                st.session_state._idea_prefill_title = ""
+                st.session_state._idea_prefill_cat   = "General"
                 st.balloons()
             else:
                 st.error("Idea title is required!")
 
         if col2.button("💡 Save + AI Plan", type="primary", use_container_width=True):
             if n_title.strip():
-                tags   = [t.strip() for t in n_tags.split(",") if t.strip()]
+                tags    = [t.strip() for t in n_tags.split(",") if t.strip()]
                 idea_id = db.create_idea(n_title, n_desc, n_cat, tags)
                 with st.spinner("AI generating project plan…"):
                     plan = generate_plan(n_title, n_desc)
                     db.update_idea_plan(idea_id, plan)
-                st.success(f"✅ Idea saved + AI plan generated!")
+                st.success("✅ Idea saved + AI plan generated!")
                 st.session_state[f"show_plan_{idea_id}"] = True
+                st.session_state._idea_prefill_title = ""
+                st.session_state._idea_prefill_cat   = "General"
             else:
                 st.error("Idea title is required!")
 
-        # Quick idea capture grid
+        # Quick idea starters
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("#### ⚡ Quick Idea Starters")
         starters = [
-            ("🚀 App Idea",       "A mobile app that…", "Technology"),
-            ("💼 Business",       "A business that…",   "Business"),
-            ("✍️ Content",        "A content series about…", "Creative"),
-            ("🌍 Social Impact",  "A solution to…",     "Social Impact"),
+            ("🚀 App Idea",      "A mobile app that…",       "Technology"),
+            ("💼 Business",      "A business that…",          "Business"),
+            ("✍️ Content",       "A content series about…",   "Creative"),
+            ("🌍 Social Impact", "A solution to…",            "Social Impact"),
         ]
         sc = st.columns(4)
         for i, (label, placeholder, cat) in enumerate(starters):
             if sc[i].button(label, key=f"starter_{i}", use_container_width=True):
-                st.session_state.new_idea_title = placeholder
-                st.session_state.new_idea_cat   = cat
+                # Store in separate keys — NOT widget keys ✅
+                st.session_state._idea_prefill_title = placeholder
+                st.session_state._idea_prefill_cat   = cat
                 st.rerun()
