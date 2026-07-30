@@ -177,12 +177,12 @@ def render():
             # Quick prompts
             qcols = st.columns(4)
             for i, qp in enumerate([
-                "What should I focus on today?",
-                "Summarize my pending tasks",
-                "Give me a motivational quote",
-                "Help me plan my week",
+                "Focus today?",
+                "Pending tasks?",
+                "Motivate me!",
+                "Plan my week",
             ]):
-                if qcols[i].button(f"💬 {qp[:15]}…", key=f"qp_{i}", use_container_width=True):
+                if qcols[i].button(f"💬 {qp}", key=f"qp_{i}", use_container_width=True):
                     st.session_state._chat_q = qp
 
     # ── Chat Input — FULL WIDTH below columns ─────────────
