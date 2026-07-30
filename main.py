@@ -3,7 +3,6 @@ from __future__ import annotations
 import sys
 import streamlit as st
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
-
 # ── Page config (MUST be first Streamlit call) ────────────
 st.set_page_config(
     page_title="AI Super OS v2.0",
@@ -11,7 +10,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
 # ── Session state defaults ────────────────────────────────
 def _init_state():
     defaults = {
@@ -39,9 +37,7 @@ def _init_state():
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
-
 _init_state()
-
 # ── Imports ───────────────────────────────────────────────
 from app_config import (
     COLOR_PRIMARY, COLOR_SECONDARY, COLOR_BG, COLOR_CARD,
@@ -50,12 +46,10 @@ from app_config import (
 )
 from db_bridge import db
 from ai_bridge import get_status as ai_status
-
 # ══════════════════════════════════════════════════════════
 # THEME — decided BEFORE any CSS is written
 # ══════════════════════════════════════════════════════════
 IS_LIGHT = st.session_state.get("theme_mode") == "☀️ Light"
-
 # ── Hide Streamlit default nav ────────────────────────────
 st.markdown("""<style>
 [data-testid="stSidebarNav"]{display:none!important;}
@@ -64,7 +58,6 @@ st.markdown("""<style>
 header[data-testid="stSidebarNavHeader"]{display:none!important;}
 section[data-testid="stSidebarNav"]{display:none!important;}
 </style>""", unsafe_allow_html=True)
-
 # ══════════════════════════════════════════════════════════
 # DARK THEME CSS (default)
 # ══════════════════════════════════════════════════════════
@@ -104,9 +97,8 @@ hr{{border-color:#1e293b!important;margin:16px 0!important;}}
 .main .block-container{{padding:1.5rem 2rem 3rem 2rem!important;max-width:1400px!important;}}
 [data-testid="stRadio"] label{{color:#e2e8f0!important;}}
 </style>""", unsafe_allow_html=True)
-
 # ══════════════════════════════════════════════════════════
-# LIGHT THEME CSS — applied immediately if light mode active
+# LIGHT THEME CSS
 # ══════════════════════════════════════════════════════════
 if IS_LIGHT:
     st.markdown(f"""<style>
@@ -140,64 +132,29 @@ div[style*="color:#e2e8f0"]{{color:#1e293b!important;}}
 div[style*="color:#94a3b8"]{{color:#475569!important;}}
 div[style*="color:#64748b"]{{color:#64748b!important;}}
 </style>""", unsafe_allow_html=True)
-
 # ══════════════════════════════════════════════════════════
-# MOBILE FRIENDLY CSS — always applied
+# MOBILE FRIENDLY CSS
 # ══════════════════════════════════════════════════════════
 st.markdown("""<style>
-/* ── Mobile (max 768px) ── */
 @media (max-width: 768px) {
-    .main .block-container {
-        padding: 0.5rem 0.5rem 2rem 0.5rem !important;
-    }
-    section[data-testid="stSidebar"] {
-        width: 220px !important;
-        min-width: 220px !important;
-    }
-    .stButton > button {
-        font-size: 15px !important;
-        min-height: 44px !important;
-        padding: 10px 8px !important;
-    }
-    .stTextInput > div > div > input,
-    .stTextArea > div > div > textarea {
-        font-size: 16px !important;
-        min-height: 44px !important;
-    }
-    .stSelectbox > div > div {
-        min-height: 44px !important;
-    }
-    div[data-testid="column"] {
-        width: 100% !important;
-        flex: 1 1 100% !important;
-        min-width: 0 !important;
-    }
+    .main .block-container { padding: 0.5rem 0.5rem 2rem 0.5rem !important; }
+    section[data-testid="stSidebar"] { width: 220px !important; min-width: 220px !important; }
+    .stButton > button { font-size: 15px !important; min-height: 44px !important; padding: 10px 8px !important; }
+    .stTextInput > div > div > input, .stTextArea > div > div > textarea { font-size: 16px !important; min-height: 44px !important; }
+    .stSelectbox > div > div { min-height: 44px !important; }
+    div[data-testid="column"] { width: 100% !important; flex: 1 1 100% !important; min-width: 0 !important; }
     h1 { font-size: 22px !important; }
     h2 { font-size: 18px !important; }
     h3 { font-size: 15px !important; }
-    .stTabs [data-baseweb="tab"] {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-    }
+    .stTabs [data-baseweb="tab"] { padding: 6px 10px !important; font-size: 12px !important; }
 }
-/* ── Small mobile (max 480px) ── */
 @media (max-width: 480px) {
-    section[data-testid="stSidebar"] {
-        width: 180px !important;
-        min-width: 180px !important;
-    }
-    .nav-btn > button {
-        font-size: 12px !important;
-        padding: 8px 10px !important;
-    }
+    section[data-testid="stSidebar"] { width: 180px !important; min-width: 180px !important; }
+    .nav-btn > button { font-size: 12px !important; padding: 8px 10px !important; }
     h1 { font-size: 18px !important; }
 }
-/* ── All screens: better tap targets ── */
-.stButton > button {
-    min-height: 40px !important;
-}
+.stButton > button { min-height: 40px !important; }
 </style>""", unsafe_allow_html=True)
-
 # ── Navigation pages ──────────────────────────────────────
 NAV_PAGES = [
     ("home",      "🏠", "Home"),
@@ -211,14 +168,11 @@ NAV_PAGES = [
     ("ideas",     "💡", "Ideas & Projects"),
     ("aitools",   "🛠️", "AI Tools"),
     ("analytics", "📊", "Analytics"),
-     ("contacts", "👥", "Contacts"),
-    ("journal",  "📔", "Journal"),
+    ("contacts",  "👥", "Contacts"),
+    ("journal",   "📔", "Journal"),
 ]
-
 # ── Sidebar ───────────────────────────────────────────────
 with st.sidebar:
-
-    # Logo
     st.markdown(f"""
     <div style='padding:20px 8px 16px 8px;border-bottom:1px solid #1e293b;margin-bottom:12px;'>
         <div style='font-size:26px;font-weight:900;color:{COLOR_PRIMARY};
@@ -230,8 +184,6 @@ with st.sidebar:
             v2.0 · Personal AI System
         </div>
     </div>""", unsafe_allow_html=True)
-
-    # AI status
     ai_info      = ai_status()
     ai_ready     = ai_info.get("ready", False)
     ai_provider  = ai_info.get("provider", "unknown")
@@ -243,8 +195,6 @@ with st.sidebar:
         f"text-align:center;margin-bottom:12px;'>{status_text}</div>",
         unsafe_allow_html=True
     )
-
-    # ── Search ───────────────────────────────────────────
     search_q = st.text_input(
         "search",
         placeholder="🔍 Notes, tasks dhundho...",
@@ -259,35 +209,24 @@ with st.sidebar:
             if found_notes:
                 st.markdown(
                     f"<p style='font-size:11px;color:{COLOR_PRIMARY};margin:4px 0 2px;'>"
-                    f"📝 Notes ({len(found_notes)})</p>",
-                    unsafe_allow_html=True
-                )
+                    f"📝 Notes ({len(found_notes)})</p>", unsafe_allow_html=True)
                 for n in found_notes[:3]:
                     st.markdown(
                         f"<p style='font-size:11px;color:#94a3b8;margin:1px 0;padding-left:8px;'>"
-                        f"• {n['title'][:24]}</p>",
-                        unsafe_allow_html=True
-                    )
+                        f"• {n['title'][:24]}</p>", unsafe_allow_html=True)
             if found_tasks:
                 st.markdown(
                     f"<p style='font-size:11px;color:{COLOR_SUCCESS};margin:4px 0 2px;'>"
-                    f"✅ Tasks ({len(found_tasks)})</p>",
-                    unsafe_allow_html=True
-                )
+                    f"✅ Tasks ({len(found_tasks)})</p>", unsafe_allow_html=True)
                 for t in found_tasks[:3]:
                     st.markdown(
                         f"<p style='font-size:11px;color:#94a3b8;margin:1px 0;padding-left:8px;'>"
-                        f"• {t['title'][:24]}</p>",
-                        unsafe_allow_html=True
-                    )
+                        f"• {t['title'][:24]}</p>", unsafe_allow_html=True)
             if not found_notes and not found_tasks:
                 st.caption("Kuch nahi mila 🔍")
         except Exception:
             pass
-
     st.markdown("<hr style='border-color:#1e293b;margin:6px 0;'>", unsafe_allow_html=True)
-
-    # ── Navigation ───────────────────────────────────────
     for page_id, icon, label in NAV_PAGES:
         is_active = st.session_state.current_page == page_id
         css_class = "nav-btn-active" if is_active else "nav-btn"
@@ -297,8 +236,6 @@ with st.sidebar:
             st.session_state.current_page = page_id
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
-
-    # ── Theme Toggle ─────────────────────────────────────
     st.markdown("<hr style='border-color:#1e293b;margin:8px 0;'>", unsafe_allow_html=True)
     new_theme = st.radio(
         "theme",
@@ -307,8 +244,6 @@ with st.sidebar:
         key="theme_mode",
         label_visibility="collapsed"
     )
-
-    # ── Bottom Stats ─────────────────────────────────────
     st.markdown("<hr style='border-color:#1e293b;margin:8px 0;'>", unsafe_allow_html=True)
     try:
         stats = db.get_dashboard_stats()
@@ -318,12 +253,9 @@ with st.sidebar:
             f"✅ {stats.get('tasks_total',0)} tasks<br>"
             f"🎯 {stats.get('goals_active',0)} goals · "
             f"📚 {stats.get('skills_total',0)} skills"
-            f"</div>",
-            unsafe_allow_html=True
-        )
+            f"</div>", unsafe_allow_html=True)
     except Exception:
         pass
-
 # ── Page Router ───────────────────────────────────────────
 page = st.session_state.current_page
 try:
@@ -349,7 +281,7 @@ try:
         from pages.page_aitools   import render; render()
     elif page == "analytics":
         from pages.page_analytics import render; render()
-        elif page == "contacts":
+    elif page == "contacts":
         from pages.page_contacts  import render; render()
     elif page == "journal":
         from pages.page_journal   import render; render()
