@@ -34,4 +34,5 @@ PAGES = {
     "tasks":"✅ Tasks","goals":"🎯 Goals","learning":"📚 Learning",
     "finance":"💰 Finance","documents":"📄 Documents","ideas":"💡 Ideas",
     "aitools":"🛠️ AI Tools","analytics":"📊 Analytics",
+    "contacts":"👥 Contacts","journal":"📔 Journal",
 }
