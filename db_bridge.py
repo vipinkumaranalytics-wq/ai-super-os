@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os, json, uuid, datetime
+from contextlib import contextmanager
 import streamlit as st
 
 
@@ -10,13 +11,25 @@ def _get_url():
         return os.environ.get("DATABASE_URL", "")
 
 
-def _conn():
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
+@st.cache_resource
+def _get_pool():
+    import psycopg2.pool
     url = _get_url()
     if not url:
         raise Exception("DATABASE_URL not set in Streamlit secrets!")
-    return psycopg2.connect(url, cursor_factory=RealDictCursor)
+    return psycopg2.pool.SimpleConnectionPool(1, 5, url)
+
+
+@contextmanager
+def _conn():
+    import psycopg2.extras
+    pool = _get_pool()
+    conn = pool.getconn()
+    conn.cursor_factory = psycopg2.extras.RealDictCursor
+    try:
+        yield conn
+    finally:
+        pool.putconn(conn)
 
 
 def _now():   return datetime.datetime.now().isoformat()
