@@ -349,6 +349,10 @@ try:
         from pages.page_aitools   import render; render()
     elif page == "analytics":
         from pages.page_analytics import render; render()
+        elif page == "contacts":
+        from pages.page_contacts  import render; render()
+    elif page == "journal":
+        from pages.page_journal   import render; render()
     elif page == "drive":
         from pages.page_drive     import render; render()
     else:
