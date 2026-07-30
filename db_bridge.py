@@ -25,14 +25,12 @@ def _get_conn():
 
 
 def _cur():
-    """Return a cursor, reconnecting if the connection dropped."""
+    """Return (conn, cursor) — reuses cached connection, reconnects if dropped."""
     import psycopg2
     from psycopg2.extras import RealDictCursor
-    conn = _get_conn()
     try:
-        cur = conn.cursor()
-        cur.execute("SELECT 1")
-        return conn, cur
+        conn = _get_conn()
+        return conn, conn.cursor()          # ✅ No extra SELECT 1 query
     except Exception:
         st.cache_resource.clear()
         url = _get_url()
@@ -120,7 +118,7 @@ class _DB:
         conn.commit()
         return nid
 
-    @st.cache_data(ttl=10)
+    @st.cache_data(ttl=60)
     def get_all_notes(_self, search="", category="", pinned_first=True):
         conn, cur = _cur()
         cur.execute("SELECT * FROM notes WHERE is_archived=0 ORDER BY is_pinned DESC, updated_at DESC")
@@ -170,7 +168,7 @@ class _DB:
         conn.commit()
         return tid
 
-    @st.cache_data(ttl=10)
+    @st.cache_data(ttl=60)
     def get_all_tasks(_self, status="", priority=""):
         conn, cur = _cur()
         cur.execute("SELECT * FROM tasks ORDER BY created_at DESC")
@@ -292,7 +290,7 @@ class _DB:
         conn.commit()
         return gid
 
-    @st.cache_data(ttl=10)
+    @st.cache_data(ttl=60)
     def get_all_goals(_self, status="active"):
         conn, cur = _cur()
         if status:
@@ -383,7 +381,7 @@ class _DB:
         conn.commit()
         return tid
 
-    @st.cache_data(ttl=10)
+    @st.cache_data(ttl=60)
     def get_all_transactions(_self, tx_type="", month=""):
         conn, cur = _cur()
         cur.execute("SELECT * FROM transactions ORDER BY date DESC")
@@ -524,7 +522,7 @@ class _DB:
         conn.commit()
 
     # ── DASHBOARD STATS ──────────────────────────────────
-    @st.cache_data(ttl=15)
+    @st.cache_data(ttl=60)
     def get_dashboard_stats(_self):
         cur_month = datetime.date.today().strftime("%Y-%m")
         conn, cur = _cur()
